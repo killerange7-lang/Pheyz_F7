@@ -1,0 +1,17 @@
+/* ============================================================
+   Ma ToDo — styles de l'application
+   ============================================================ */
+
+/* Couleur principale du thème (orange) */
+:root {
+    --f7-theme-color: #e8590c;
+    --f7-theme-color-rgb: 232, 89, 12;
+    --f7-theme-color-shade: #cf5009;
+    --f7-theme-color-tint: #f06a1e;
+}
+
+.page-content {
+    padding-bottom: 16px;
+}
+
+/* SÉANCE 3 : ajouter ici le style de la tâche cochée (texte barré) */

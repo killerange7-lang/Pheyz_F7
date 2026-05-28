@@ -9,12 +9,32 @@
         <link rel="stylesheet" href="lib/framework7-bundle.min.css" />
         <link rel="stylesheet" href="lib/framework7-icons/css/framework7-icons.css" />
         <link rel="stylesheet" href="css/app.css" />
+
+        <style>
+    .navbar-bg {
+        background-color: #e8590c !important;
+    }
+    .navbar .title {
+        color: #ffffff !important;
+    }
+    .tache-faite {
+        text-decoration: line-through !important;
+        color: #a1a1a1 !important;
+    }
+    /* Style ajusté pour l'icône poubelle */
+    .btn-suppr {
+        color: #ff3b30 !important;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+</style>
     </head>
     <body>
         
         <div id="app">
-            <div class="view view-main view-init safe-areas">
-                <div class="page">
+            <div class="view view-main safe-areas">
+                <div class="page" data-name="home">
                     
                     <div class="navbar">
                         <div class="navbar-bg"></div>
@@ -25,53 +45,35 @@
 
                     <div class="page-content">
                         
-                        <div class="list simple-list">
+                        <div class="list inset">
                             <ul>
-                                
-                                <li class="item-content">
-                                    <div class="item-media">
-                                        <label class="checkbox">
-                                            <input type="checkbox">
-                                            <i class="icon-checkbox"></i>
-                                        </label>
-                                    </div>
+                                <li class="item-content item-input">
                                     <div class="item-inner">
-                                        <div class="item-title">Tâche 1</div>
+                                        <div class="item-input-wrap">
+                                            <input type="text" id="champ-tache" placeholder="Nouvelle tâche...">
+                                        </div>
                                     </div>
                                 </li>
-
-                                <li class="item-content">
-                                    <div class="item-media">
-                                        <label class="checkbox">
-                                            <input type="checkbox">
-                                            <i class="icon-checkbox"></i>
-                                        </label>
-                                    </div>
-                                    <div class="item-inner">
-                                        <div class="item-title">Tâche 2</div>
-                                    </div>
-                                </li>
-
-                                <li class="item-content">
-                                    <div class="item-media">
-                                        <label class="checkbox">
-                                            <input type="checkbox">
-                                            <i class="icon-checkbox"></i>
-                                        </label>
-                                    </div>
-                                    <div class="item-inner">
-                                        <div class="item-title">Tâche 3</div>
-                                    </div>
-                                </li>
-
                             </ul>
-                        </div> <div class="block">
+                        </div>
+
+                        <div class="block">
+                            <button class="button button-fill" id="btn-ajouter" style="width: 100%;">Ajouter</button>
+                        </div>
+
+                        <div class="list simple-list">
+                            <ul id="liste-taches-ul">
+                                </ul>
+                        </div> 
+                        
+                        <div class="block">
                             <p class="text-color-gray">
                                 À compléter pendant les séances.
                             </p>
                         </div>
 
-                    </div> </div>
+                    </div> 
+                </div>
             </div>
         </div>
 

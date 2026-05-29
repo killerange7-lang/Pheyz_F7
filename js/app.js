@@ -21,16 +21,24 @@ var app = new Framework7({
 // Initialisation de la vue principale (obligatoire pour activer le routeur)
 var mainView = app.views.create('.view-main');
 
-// Ton tableau de données de base
-var taches = [
+// Variable pour suivre le filtre sélectionné (Séance 3)
+var filtreActif = 'toutes'; // Valeurs possibles : 'toutes', 'afaire', 'faites'
+
+// MODIFICATION : Chargement des données depuis le localStorage ou initialisation par défaut (Séance 3)
+var donneesSauvegardees = localStorage.getItem('mes_taches_todo');
+
+var taches = donneesSauvegardees ? JSON.parse(donneesSauvegardees) : [
   { id: 1, texte: "Tâche 1", fait: false },
   { id: 2, texte: "Tâche 2", fait: false },
   { id: 3, texte: "Tâche 3", fait: false },
   { id: 4, texte: "Tâche 4", fait: false },
 ];
 
-// Fonction qui génère le HTML d'une ligne (inchangée, elle est parfaite)
+// Fonction qui génère le HTML d'une ligne
 function ligneTache(t) {
+  // On gère dynamiquement la classe si la tâche est faite
+  var classeStatut = t.fait ? 'tache-faite' : '';
+
   return '<li class="item-content" data-id="' + t.id + '">' +
     '<div class="item-media">' +
       '<label class="checkbox">' +
@@ -39,7 +47,8 @@ function ligneTache(t) {
       '</label>' +
     '</div>' +
     '<div class="item-inner">' +
-      '<div class="item-title ' + (t.fait ? 'tache-faite' : '') + '">' + t.texte + '</div>' +
+      // Utilisation de la variable classeStatut pour barrer le texte si besoin
+      '<div class="item-title ' + classeStatut + '">' + t.texte + '</div>' +
       '<div class="item-after">' +
         '<a href="#" class="btn-suppr f7-icons"><i class="icon f7-icons">trash</i></a>' +
       '</div>' +
@@ -47,15 +56,42 @@ function ligneTache(t) {
   '</li>';
 }
 
-// Fonction pour afficher les tâches
+// Fonction pour afficher les tâches ET mettre à jour le compteur (avec FILTRES Séance 3)
 function afficher() {
   var conteneur = document.getElementById('liste-taches-ul');
   if (conteneur) {
     var htmlResultat = '';
+    var nbFaites = 0; // Initialisation du compteur de tâches terminées
+
     for (var i = 0; i < taches.length; i++) {
-      htmlResultat += ligneTache(taches[i]);
+      var laTache = taches[i];
+
+      // 1. On gère le compteur global (indépendant du filtre visuel)
+      if (laTache.fait) {
+        nbFaites++;
+      }
+
+      // 2. On vérifie si la tâche doit être affichée selon le filtre actif
+      if (filtreActif === 'toutes') {
+        htmlResultat += ligneTache(laTache);
+      } else if (filtreActif === 'afaire' && !laTache.fait) {
+        htmlResultat += ligneTache(laTache);
+      } else if (filtreActif === 'faites' && laTache.fait) {
+        htmlResultat += ligneTache(laTache);
+      }
     }
+    
+    // Insertion des lignes filtrées dans la liste HTML
     conteneur.innerHTML = htmlResultat;
+
+    // MISE À ZONE DU COMPTEUR
+    var zoneCompteur = document.getElementById('zone-compteur');
+    if (zoneCompteur) {
+      zoneCompteur.innerHTML = 'Tâches complétées : ' + nbFaites + ' / ' + taches.length;
+    }
+
+    // MODIFICATION : Sauvegarde automatique du tableau mis à jour dans le localStorage (Séance 3)
+    localStorage.setItem('mes_taches_todo', JSON.stringify(taches));
   }
 }
 
@@ -66,10 +102,10 @@ function afficher() {
 // On écoute le moment où la page des tâches ("tasks") est initialisée à l'écran
 $$(document).on('page:init', '.page[data-name="tasks"]', function (e) {
   
-  // 1. On affiche directement les tâches existantes
+  // 1. On affiche directement les tâches existantes et le compteur initial
   afficher();
 
-  // 2. Écouteur pour le bouton d'ajout (on le place ICI car le bouton existe enfin dans le DOM)
+  // 2. Écouteur pour le bouton d'ajout
   var btnAjouter = document.getElementById('btn-ajouter');
   if (btnAjouter) {
     btnAjouter.addEventListener('click', function () {
@@ -88,16 +124,60 @@ $$(document).on('page:init', '.page[data-name="tasks"]', function (e) {
       });
 
       champ.value = ''; // Vide le champ input
-      afficher();       // Rafraîchit l'écran
+      afficher();       // Rafraîchit l'écran, le compteur et sauvegarde
+
+      // AJOUT DU TOAST
+      var notificationToast = app.toast.create({
+        text: 'Tâche ajoutée avec succès !',
+        closeTimeout: 2000,
+        position: 'bottom',
+      });
+      
+      notificationToast.open();
     });
   }
+
+  // 3. ÉCOUTEURS POUR LES BOUTONS DE FILTRES (Séance 3)
+  var btnToutes = document.getElementById('filtre-toutes');
+  var btnAfaire = document.getElementById('filtre-afaire');
+  var btnFaites = document.getElementById('filtre-faites');
+
+  if (btnToutes && btnAfaire && btnFaites) {
+    
+    btnToutes.addEventListener('click', function () {
+      // On bascule la classe active visuellement
+      $$(this).addClass('button-active');
+      $$(btnAfaire).removeClass('button-active');
+      $$(btnFaites).removeClass('button-active');
+      // On applique le filtre et on rafraîchit
+      filtreActif = 'toutes';
+      afficher();
+    });
+
+    btnAfaire.addEventListener('click', function () {
+      $$(this).addClass('button-active');
+      $$(btnToutes).removeClass('button-active');
+      $$(btnFaites).removeClass('button-active');
+      filtreActif = 'afaire';
+      afficher();
+    });
+
+    btnFaites.addEventListener('click', function () {
+      $$(this).addClass('button-active');
+      $$(btnToutes).removeClass('button-active');
+      $$(btnAfaire).removeClass('button-active');
+      filtreActif = 'faites';
+      afficher();
+    });
+  }
+
 });
 
 // ==========================================
 // ÉCOUTEURS GLOBAUX (DÉLÉGATION D'ÉVÉNEMENTS)
 // ==========================================
 
-// Pour la suppression (fonctionne n'importe quand et n'importe où sur le document)
+// Pour la suppression
 document.addEventListener('click', function (e) {
   var boutonSuppr = e.target.closest('.btn-suppr');
   
@@ -110,7 +190,7 @@ document.addEventListener('click', function (e) {
       return t.id !== idASupprimer;
     });
 
-    afficher();
+    afficher(); // Rafraîchit et sauvegarde
   }
 });
 
@@ -128,6 +208,6 @@ document.addEventListener('change', function (e) {
       }
     }
 
-    afficher();
+    afficher(); // Rafraîchit et sauvegarde
   }
 });

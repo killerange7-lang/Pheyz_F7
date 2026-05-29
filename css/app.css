@@ -15,3 +15,8 @@
 }
 
 /* SÉANCE 3 : ajouter ici le style de la tâche cochée (texte barré) */
+.tache-faite {
+    text-decoration: line-through !important;
+    color: #8e8e93 !important;
+    font-style: italic;
+}
